@@ -1,5 +1,6 @@
 ﻿//using Android.Text.Method;
 using MonkeysMVVM.Models;
+using MonkeysMVVM.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,12 +27,31 @@ namespace MonkeysMVVM.ViewModels
         public MonkeyPageViewModel()
         {
             monkey = new Monkey() { Name = "אין קופים כרגע" };
-            SearchByCountryCommand = new Command(FindMonkeys,()=> Country != null);
+            SearchByCountryCommand = new Command(FindMonkeys,()=> !string.IsNullOrEmpty(Country));
         }
 
         private void FindMonkeys()
         {
-           //not implemented 
+            MonkeysService service = new MonkeysService();
+            List<Monkey> lst = service.FindMonkeysByLocation(Country);
+            if(lst.Count > 0) 
+            { 
+                monkey = lst[0]; 
+            }
+            else
+            {
+                monkey = new Monkey() { Name = "אין קופים להצגה" };
+            }
+            count = lst.Count();
+            Refreshedata();
+            Country = null; 
+        }
+
+        private void Refreshedata()
+        {
+            OnPropertyChanged("Name");
+            OnPropertyChanged(nameof(ImageUrl));
+            
         }
     }
 }
